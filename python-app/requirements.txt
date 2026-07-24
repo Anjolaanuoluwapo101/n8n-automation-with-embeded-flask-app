@@ -1,0 +1,8 @@
+flask
+requests
+beautifulsoup4
+lxml
+fake_useragent
+curl_cffi
+cloudscraper
+playwright
