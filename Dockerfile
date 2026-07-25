@@ -12,7 +12,6 @@ RUN mkdir -p /home/node/.n8n && chown -R node:node /home/node/.n8n
 RUN apk add --no-cache \
     python3 \
     py3-pip \
-    py3-playwright \
     chromium \
     nss \
     freetype \
@@ -27,6 +26,12 @@ ENV N8N_LISTEN_ADDRESS=0.0.0.0
 
 COPY python-app/requirements.txt /app/requirements.txt
 RUN pip3 install --no-cache-dir --break-system-packages -r /app/requirements.txt
+
+# Install playwright from source — bypasses PyPI wheel restriction on Python 3.14
+RUN apk add --no-cache git && \
+    pip3 install --no-cache-dir --break-system-packages \
+    "git+https://github.com/microsoft/playwright-python.git@v1.44.0" && \
+    apk del git
 
 COPY python-app/ /app/
 COPY start.sh /start.sh
