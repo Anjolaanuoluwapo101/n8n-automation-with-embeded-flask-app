@@ -1,27 +1,32 @@
+FROM alpine:latest AS alpine
+
 FROM n8nio/n8n:latest
 
 USER root
 
+# Bring apk in from Alpine so we can install packages
+COPY --from=alpine /sbin/apk /sbin/apk
+COPY --from=alpine /usr/lib/libapk.so* /usr/lib/
+
 # n8n dirs
 RUN mkdir -p /home/node/.n8n && chown -R node:node /home/node/.n8n
 
-# Python + system Chromium
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Now apk works
+RUN apk add --no-cache \
     python3 \
-    python3-pip \
+    py3-pip \
     chromium \
-    libnss3 \
-    libfreetype6 \
-    libharfbuzz0b \
+    nss \
+    freetype \
+    harfbuzz \
     ca-certificates \
-    fonts-freefont-ttf \
-    && rm -rf /var/lib/apt/lists/*
+    ttf-freefont
 
 # Skip Playwright's bundled browser, use system Chromium
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium
 
-# HF Spaces port
+# HF Spaces
 ENV N8N_PORT=7860
 ENV N8N_LISTEN_ADDRESS=0.0.0.0
 
@@ -29,10 +34,7 @@ ENV N8N_LISTEN_ADDRESS=0.0.0.0
 COPY python-app/requirements.txt /app/requirements.txt
 RUN pip3 install --no-cache-dir --break-system-packages -r /app/requirements.txt
 
-# Copy scraper scripts + Flask app
 COPY python-app/ /app/
-
-# Start script (launches Flask + n8n together)
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
