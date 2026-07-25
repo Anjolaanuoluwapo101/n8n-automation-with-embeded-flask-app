@@ -22,12 +22,9 @@ RUN apk add --no-cache \
 
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium
 ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
+
 ENV N8N_PORT=7860
 ENV N8N_LISTEN_ADDRESS=0.0.0.0
-
-# Force SQLite — don't let n8n pick up any stray Postgres env vars
-ENV DB_TYPE=sqlite
-ENV DB_SQLITE_DATABASE_FILE=/home/node/.n8n/database.sqlite
 
 COPY python-app/requirements.txt /app/requirements.txt
 RUN pip3 install --no-cache-dir --break-system-packages -r /app/requirements.txt
