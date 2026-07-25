@@ -10,7 +10,11 @@ RUN apk add --no-cache \
     freetype \
     harfbuzz \
     ca-certificates \
-    ttf-freefont
+    ttf-freefont \
+    build-base \
+    g++ \
+    make \
+    linux-headers
 
 RUN npm install -g n8n
 
