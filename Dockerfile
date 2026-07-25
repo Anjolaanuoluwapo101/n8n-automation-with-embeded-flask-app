@@ -17,7 +17,13 @@ RUN apk add --no-cache \
     freetype \
     harfbuzz \
     ca-certificates \
-    ttf-freefont
+    ttf-freefont \
+    git \
+    gcc \
+    g++ \
+    python3-dev \
+    musl-dev \
+    libffi-dev
 
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium
@@ -27,11 +33,9 @@ ENV N8N_LISTEN_ADDRESS=0.0.0.0
 COPY python-app/requirements.txt /app/requirements.txt
 RUN pip3 install --no-cache-dir --break-system-packages -r /app/requirements.txt
 
-# Install playwright from source — bypasses PyPI wheel restriction on Python 3.14
-RUN apk add --no-cache git && \
-    pip3 install --no-cache-dir --break-system-packages \
+RUN pip3 install --no-cache-dir --break-system-packages \
     "git+https://github.com/microsoft/playwright-python.git@v1.44.0" && \
-    apk del git
+    apk del git gcc g++ python3-dev musl-dev libffi-dev
 
 COPY python-app/ /app/
 COPY start.sh /start.sh
