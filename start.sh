@@ -1,15 +1,17 @@
 #!/bin/sh
-set -e
 
-# Start Flask API in background
-python3 /app/app.py &
-FLASK_PID=$!
-
-# Start n8n in background
+# Start n8n first — Render must detect port 7860 as primary
 n8n start &
 N8N_PID=$!
 
-# If either dies, kill both and exit so HF restarts the container
+# Give n8n time to bind its port before Flask starts
+sleep 5
+
+# Start Flask API
+python3 /app/app.py &
+FLASK_PID=$!
+
+# If either dies, kill both so Render restarts the container
 wait -n
-kill $FLASK_PID $N8N_PID 2>/dev/null
+kill $N8N_PID $FLASK_PID 2>/dev/null
 exit 1
