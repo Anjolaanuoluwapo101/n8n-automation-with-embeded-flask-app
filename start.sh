@@ -1,23 +1,27 @@
 #!/bin/sh
 
-# ── 1. nginx (reverse proxy on :7860) ──────────────────────────────────────
-# Routes GET /health → Flask:5000, everything else (n8n UI + API + WS) → n8n:5678.
+echo "[INIT] Creating runtime buffer directories in /tmp..."
+mkdir -p /tmp/client_body /tmp/proxy /tmp/fastcgi /tmp/uwsgi /tmp/scgi
+
+echo "[INIT] Starting nginx reverse proxy on port 7860..."
 nginx -g 'daemon off;' &
 NGINX_PID=$!
 
-# ── 2. n8n (internal :5678) ────────────────────────────────────────────────
+echo "[INIT] Starting n8n on internal port 5678..."
 n8n start &
 N8N_PID=$!
 
-# ── 3. Flask API (internal :5000) ──────────────────────────────────────────
+echo "[INIT] Starting Flask API on internal port 5000..."
 python3 /app/app.py &
 FLASK_PID=$!
 
-# ── Process supervisor: monitor all 3 processes ────────────────────────────
-# If any process dies, exit so the container platform restarts it.
+echo "[INIT] All processes launched: nginx($NGINX_PID) n8n($N8N_PID) flask($FLASK_PID)"
+
+# Monitor all 3 background processes
 while kill -0 "$NGINX_PID" 2>/dev/null && kill -0 "$N8N_PID" 2>/dev/null && kill -0 "$FLASK_PID" 2>/dev/null; do
     sleep 2
 done
 
+echo "[FATAL] A process terminated unexpectedly. Shutting down container."
 kill $NGINX_PID $N8N_PID $FLASK_PID 2>/dev/null
 exit 1
