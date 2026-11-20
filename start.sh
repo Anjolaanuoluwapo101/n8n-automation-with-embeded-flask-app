@@ -8,7 +8,9 @@ nginx -g 'daemon off;' &
 NGINX_PID=$!
 
 echo "[INIT] Starting n8n on internal port 5678..."
-n8n start &
+# Unset PORT to prevent n8n from reading Render's PORT=7860; use N8N_PORT=5678 only
+unset PORT
+N8N_PORT=5678 n8n start &
 N8N_PID=$!
 
 echo "[INIT] Starting Flask API on internal port 5000..."
