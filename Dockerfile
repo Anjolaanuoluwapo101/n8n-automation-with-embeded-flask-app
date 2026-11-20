@@ -4,9 +4,10 @@ USER root
 
 RUN mkdir -p /home/node/.n8n && chown -R node:node /home/node/.n8n
 
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
-    libpq
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Application ports
 ENV N8N_PORT=5678
