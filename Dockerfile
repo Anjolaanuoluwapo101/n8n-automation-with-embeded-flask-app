@@ -36,8 +36,17 @@ RUN pip3 install --no-cache-dir --break-system-packages selenium
 
 COPY python-app/ /app/
 
-# Fix: create outputs dir as root before switching user
-RUN mkdir -p /app/outputs && chown -R node:node /app
+# Fix: create outputs dir and nginx runtime directories as root before switching user
+RUN mkdir -p /app/outputs \
+             /var/lib/nginx/tmp \
+             /var/log/nginx \
+             /run/nginx \
+             /tmp/client_body \
+             /tmp/proxy \
+             /tmp/fastcgi \
+             /tmp/uwsgi \
+             /tmp/scgi && \
+    chown -R node:node /app /var/lib/nginx /var/log/nginx /run/nginx /etc/nginx /tmp
 
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
