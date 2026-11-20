@@ -1,17 +1,24 @@
 #!/bin/sh
 
-# Start n8n first — Render must detect port 7860 as primary
+# ── 1. nginx (reverse proxy on :7860) ──────────────────────────────────────
+# nginx owns the public port. Routes GET /health → Flask:5000,
+# everything else (n8n UI + API + WS) → n8n:5678.
+nginx -g 'daemon off;' &
+NGINX_PID=$!
+
+# ── 2. n8n (internal :5678) ────────────────────────────────────────────────
+# Give nginx a moment to bind before n8n starts.
+sleep 2
 n8n start &
 N8N_PID=$!
 
-# Give n8n time to bind its port before Flask starts
-sleep 5
-
-# Start Flask API
+# ── 3. Flask API (internal :5000) ──────────────────────────────────────────
+# Wait for n8n to finish initialising before Flask opens.
+sleep 10
 python3 /app/app.py &
 FLASK_PID=$!
 
-# If either dies, kill both so Render restarts the container
+# ── If any process exits, kill the others so Render restarts the container ──
 wait -n
-kill $N8N_PID $FLASK_PID 2>/dev/null
+kill $NGINX_PID $N8N_PID $FLASK_PID 2>/dev/null
 exit 1

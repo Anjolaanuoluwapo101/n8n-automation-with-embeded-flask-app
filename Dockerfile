@@ -18,13 +18,17 @@ RUN apk add --no-cache \
     freetype \
     harfbuzz \
     ca-certificates \
-    ttf-freefont
+    ttf-freefont \
+    nginx \
+    libpq
 
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium
 ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
-ENV N8N_PORT=7860
+ENV N8N_PORT=5678
 ENV N8N_LISTEN_ADDRESS=0.0.0.0
+
+COPY nginx.conf /etc/nginx/nginx.conf
 
 COPY python-app/requirements.txt /app/requirements.txt
 RUN pip3 install --no-cache-dir --break-system-packages -r /app/requirements.txt

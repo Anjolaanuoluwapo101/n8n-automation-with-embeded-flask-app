@@ -12,3 +12,5 @@ python-app/outputs/
 python-app/__pycache__/
 python-app/.env
 *.csv
+.env
+.neon

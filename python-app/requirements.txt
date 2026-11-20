@@ -6,3 +6,4 @@ fake_useragent
 curl_cffi
 cloudscraper
 playwright
+psycopg2-binary
