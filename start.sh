@@ -13,17 +13,13 @@ unset PORT
 N8N_PORT=5678 n8n start &
 N8N_PID=$!
 
-echo "[INIT] Starting Flask API on internal port 5000..."
-python3 /app/app.py &
-FLASK_PID=$!
+echo "[INIT] All processes launched: nginx($NGINX_PID) n8n($N8N_PID)"
 
-echo "[INIT] All processes launched: nginx($NGINX_PID) n8n($N8N_PID) flask($FLASK_PID)"
-
-# Monitor all 3 background processes
-while kill -0 "$NGINX_PID" 2>/dev/null && kill -0 "$N8N_PID" 2>/dev/null && kill -0 "$FLASK_PID" 2>/dev/null; do
+# Monitor both background processes
+while kill -0 "$NGINX_PID" 2>/dev/null && kill -0 "$N8N_PID" 2>/dev/null; do
     sleep 2
 done
 
 echo "[FATAL] A process terminated unexpectedly. Shutting down container."
-kill $NGINX_PID $N8N_PID $FLASK_PID 2>/dev/null
+kill $NGINX_PID $N8N_PID 2>/dev/null
 exit 1
