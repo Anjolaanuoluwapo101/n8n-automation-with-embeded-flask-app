@@ -1,0 +1,18 @@
+services:
+  # n8n only - keep it awake with an external pinger on /healthz
+  - type: web
+    name: n8n
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    envVars:
+      - key: DB_POSTGRESDB_PASSWORD
+        sync: false
+      - key: DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED
+        value: "false"
+      - key: N8N_ENCRYPTION_KEY
+        sync: false
+      - key: WEBHOOK_URL
+        sync: false          # e.g. https://n8n-xxxx.onrender.com/
